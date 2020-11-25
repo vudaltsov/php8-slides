@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>PHP 8 @vudaltsov</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="dist/reset.css">
+    <link rel="stylesheet" href="dist/reveal.css">
+    <link rel="stylesheet" href="dist/theme/vudaltsov.css" id="theme">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/styles/default.min.css" id="highlight-theme">
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+        <section class="text-center">
+            <p><img src="dist/php8_userland.png" style="width: 60%;" alt=""></p>
+            <p>Валентин Удальцов<br>
+                Ведущий разработчик в <img src="dist/happy_inc.svg" style="height: 18px; vertical-align: middle;" alt=""><br>
+                <a href="https://t.me/vudaltsov">@vudaltsov</a>, <a href="https://t.me/phpyh">@phpyh</a></p>
+        </section>
+        <section>
+            <h1>function 🥁(🙁): 😁 { }</h1>
+        </section>
+        <section>
+            <h2>str_contains()</h2>
+            <pre><code class="php">str_contains(string $haystack, string $needle): bool</code></pre>
+            <pre><code class="php">assertSame(
+    $needle === '' || strpos($haystack, $needle) !== false,
+    str_contains($haystack, $needle),
+);</code></pre>
+            <p><a href="https://wiki.php.net/rfc/str_contains">📝 RFC by Philipp Tanlak</a></p>
+            <p><a href="https://github.com/symfony/polyfill-php80">💊 Symfony Polyfill</a></p>
+        </section>
+        <section>
+            <h2>str_starts_with(), str_ends_with()</h2>
+            <pre><code class="php">str_starts_with(string $haystack, string $needle): bool
+str_ends_with  (string $haystack, string $needle): bool</code></pre>
+            <pre><code class="php">assertSame(
+    strncmp($haystack, $needle, strlen($needle)) === 0,
+    str_starts_with($haystack, $needle),
+);</code></pre>
+            <p><a href="https://wiki.php.net/rfc/add_str_starts_with_and_ends_with_functions">📝 RFC by Will Hudgins</a></p>
+            <p><a href="https://github.com/symfony/polyfill-php80">💊 Symfony Polyfill</a></p>
+        </section>
+        <section>
+            <h2>get_debug_type()</h2>
+            <pre><code class="php">get_debug_type(mixed $value ): string</code></pre>
+            <table>
+                <thead>
+                <tr>
+                    <th>$value</th>
+                    <th>gettype($value)</th>
+                    <th>get_debug_type($value)</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><code>null</code></td>
+                    <td><code>NULL</code></td>
+                    <td><code class="accent">null</code></td>
+                </tr>
+                <tr>
+                    <td><code>true</code></td>
+                    <td><code>boolean</code></td>
+                    <td><code class="accent">bool</code></td>
+                </tr>
+                <tr>
+                    <td><code>false</code></td>
+                    <td><code>boolean</code></td>
+                    <td><code class="accent">bool</code></td>
+                </tr>
+                <tr>
+                    <td><code>123</code></td>
+                    <td><code>integer</code></td>
+                    <td><code class="accent">int</code></td>
+                </tr>
+                <tr>
+                    <td><code>3.141</code></td>
+                    <td><code>double</code></td>
+                    <td><code class="accent">float</code></td>
+                </tr>
+                <tr>
+                    <td><code>'Foo'</code></td>
+                    <td><code>string</code></td>
+                    <td><code>string</code></td>
+                </tr>
+                <tr>
+                    <td><code>[1, 2]</code></td>
+                    <td><code>array</code></td>
+                    <td><code>array</code></td>
+                </tr>
+                </tbody>
+            </table>
+            <p><a href="https://wiki.php.net/rfc/get_debug_type">📝 RFC by Mark Randall</a></p>
+        </section>
+        <section>
+            <h2>get_debug_type()</h2>
+            <table>
+                <thead>
+                <tr>
+                    <th>$value</th>
+                    <th>gettype($value)</th>
+                    <th>get_debug_type($value)</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><code>new Foo\Bar()</code></td>
+                    <td><code>object</code></td>
+                    <td><code class="accent">Foo\Bar</code></td>
+                </tr>
+                <tr>
+                    <td><code>function() {}</code></td>
+                    <td><code>object</code></td>
+                    <td><code class="accent">Closure</code></td>
+                </tr>
+                <tr>
+                    <td><code>new class {}</code></td>
+                    <td><code>object</code></td>
+                    <td><code class="accent">class@anonymous</code></td>
+                </tr>
+                <tr>
+                    <td><code>new class extends Foo {}</code></td>
+                    <td><code>object</code></td>
+                    <td><code class="accent">Foo@anonymous</code></td>
+                </tr>
+                <tr>
+                    <td><code>new class implements Foo {}</code></td>
+                    <td><code>object</code></td>
+                    <td><code class="accent">Foo@anonymous</code></td>
+                </tr>
+                <tr>
+                    <td>Ресурс</td>
+                    <td><code>resource</code></td>
+                    <td><code class="accent">resource (TYPE)</code></td>
+                </tr>
+                <tr>
+                    <td>Закрытый ресурс</td>
+                    <td><code>resource (closed)</code></td>
+                    <td><code>resource (closed)</code></td>
+                </tr>
+                </tbody>
+            </table>
+            <p><a href="https://github.com/symfony/polyfill-php80">💊 Symfony Polyfill</a></p>
+        </section>
+        <section>
+            <h2>preg_last_error_msg()</h2>
+            <pre><code class="php">function preg_last_error_msg(): string
+{
+    switch (preg_last_error()) {
+        case PREG_INTERNAL_ERROR:
+            return 'Internal error';
+        case PREG_BAD_UTF8_ERROR:
+            return 'Malformed UTF-8 characters...';
+
+        // ...
+
+        default:
+            return 'Unknown error';
+    }
+}
+</code></pre>
+            <p><a href="https://github.com/php/php-src/pull/5185">📝 PR by Nico Oelgart</a></p>
+            <p><a href="https://github.com/symfony/polyfill-php80">💊 Symfony Polyfill</a></p>
+        </section>
+        <section>
+            <h2>fdiv()</h2>
+            <p>Деление в соответствии со стандартом <a href="https://ru.wikipedia.org/wiki/IEEE_754-2008">IEEE-754</a>.</p>
+            <pre><code class="php">fdiv(float $x, float $y): float</code></pre>
+            <pre><code class="php">assertSame(fdiv( 0.5, 0),  INF);
+assertSame(fdiv(-0.5, 0), -INF);
+assertSame(fdiv(   0, 0),  NAN);</code></pre>
+            <p><a href="https://github.com/php/php-src/pull/4769">📝 PR by Nikita Popov</a></p>
+            <p><a href="https://github.com/symfony/polyfill-php80">💊 Symfony Polyfill</a></p>
+        </section>
+        <section>
+            <h2>get_resource_id()</h2>
+            <pre><code class="php">function get_resource_id($resource): int
+{
+    if (!is_resource($resource)) {
+        throw new TypeError();
+    }
+
+    return (int) $resource;
+}
+</code></pre>
+            <p><a href="https://github.com/php/php-src/pull/5427">📝 PR by Nikita Popov</a></p>
+            <p><a href="https://github.com/symfony/polyfill-php80">💊 Symfony Polyfill</a></p>
+        </section>
+        <section>
+            <h2>DateTime::createFromInterface()</h2>
+            <pre><code class="php">public static DateTime::createFromInterface(
+    DateTimeInterface $dateTime
+): DateTime</code></pre>
+            <pre><code class="php">public static DateTimeImmutable::createFromInterface(
+    DateTimeInterface $dateTime
+): DateTimeImmutable</code></pre>
+            <p><a href="https://github.com/php/php-src/pull/5016">📝 PR by Mike Simonson</a></p>
+        </section>
+
+        <section>
+            <h1 style="font-size: 2em;" class="pre-wrap">final class 🐛 {
+    public function transform(): 🦋 {}
+}</h1>
+        </section>
+        <section>
+            <h2>Stringable</h2>
+            <pre><code class="php">interface Stringable
+{
+    public function __toString(): string;
+}</code></pre>
+            <p>Автоматически добавляется к классам, которые имплементируют <code>__toString()</code>.</p>
+            <pre><code class="php">function printString(string|Stringable): void
+{
+}</code></pre>
+            <p><a href="https://wiki.php.net/rfc/stringable">📝 RFC by Nicolas Grekas</a></p>
+            <p><a href="https://github.com/symfony/polyfill-php80">💊 Symfony Polyfill</a></p>
+        </section>
+        <section>
+            <h2>WeakMap</h2>
+            <pre><code class="php">$metadata = new WeakMap();
+
+$object = new stdClass(); // ref_count=1
+$metadata[$object] = 'some metadata'; // ref_count=1, not 2 🔴
+
+var_dump(count($metadata)); // int(1)
+
+unset($object); // ref_count=0
+
+var_dump(count($metadata)); // int(0)</code></pre>
+            <p><a href="https://wiki.php.net/rfc/weak_maps">📝 RFC by Nikita Popov</a></p>
+        </section>
+        <section>
+            <h2>PhpToken</h2>
+            <p>PHP < 8</p>
+            <pre><code class="php">foreach (token_get_all($code) as $token) {
+    if (!is_string($token)) {
+        [$pos, $text, $line] = $token;
+    }
+}
+</code></pre>
+            <p>PHP >= 8</p>
+            <pre><code class="php">foreach (PhpToken::tokenize($code) as $token) {
+    $token->id;
+    $token->line;
+    $token->pos;
+    $token->is([T_CLASS, T_CONST]);
+}
+</code></pre>
+            <p><a href="https://wiki.php.net/rfc/token_as_object">📝 RFC by Nikita Popov</a></p>
+            <p><a href="https://github.com/PHPWatch/phptoken-polyfill">💊 PHPWatch Polyfill</a></p>
+        </section>
+        <section>
+            <h2>Миграция ресурсов в объекты</h2>
+            <pre><code class="diff">- /**
+-  * @return resource|false
+-  */
+- function curl_init() {}
+
++ function curl_init(): CurlHandle|false {}</code></pre>
+            <p>Аналогично, <code>GDImage</code>, <code>Socket</code>, <code>OpenSSL</code>.</p>
+            <p>📝 PRs
+                <a href="https://github.com/php/php-src/pull/5402">#5402</a>,
+                <a href="https://github.com/php/php-src/pull/4714">#4714</a>,
+                <a href="https://github.com/php/php-src/pull/5900">#5900</a>,
+                <a href="https://github.com/php/php-src/pull/5860">#5860</a>
+            </p>
+        </section>
+
+        <section>
+            <h1>mixed = 🍏 | 🍋 | 🍓 | 🍌</h1>
+        </section>
+        <section>
+            <h2>mixed</h2>
+            <pre><code class="php">null|bool|int|float|string|array|object|callable|resource</code></pre>
+            <p>Объединение с любым типом, например, <code class="php">null|mixed</code>, бросит фатальную ошибку.</p>
+            <pre><code class="php">final class Example
+{
+    public mixed $property;
+
+    public function method(mixed $argument): mixed {}
+}</code></pre>
+            <p><a href="https://wiki.php.net/rfc/mixed_type_v2">📝 RFC by Máté Kocsis and Michael Moravec</a></p>
+        </section>
+        <section>
+            <h2>Объединённые типы</h2>
+            <pre><code class="php">iterable = array|Traversable</code></pre>
+            <pre><code class="php">?string = null|string</code></pre>
+            <pre><code class="php">final class Number
+{
+    private int|float $number;
+
+    public function __construct(int|float $number)
+    {
+        $this->number = $number;
+    }
+
+    public function toPrimitive(): int|float
+    {
+        return $this->number;
+    }
+}</code></pre>
+        </section>
+        <section>
+            <h2>Объединённые типы. Рефлексия</h2>
+            <pre><code class="php">$returnType = (new ReflectionClass(Number::class))
+    ->getMethod('toPrimitive')
+    ->getReturnType()
+;
+
+if ($returnType instanceof ReflectionUnionType) {
+    foreach ($returnType->getTypes() as $type) {
+        // ...
+    }
+}</code></pre>
+            <p><a href="https://wiki.php.net/rfc/union_types_v2">📝 RFC by Nikita Popov</a></p>
+        </section>
+        <section>
+            <h2>static</h2>
+            <pre><code>abstract class ValueObject
+{
+    final public static function fromString(string $value): static
+    {
+        return new static($value);
+    }
+
+    final public function withValue(string $value): static
+    {
+        $clone = clone $this;
+        $clone->value = $value;
+
+        return $clone;
+    }
+}</code></pre>
+            <p><a href="https://wiki.php.net/rfc/static_return_type">📝 RFC by Nikita Popov</a></p>
+        </section>
+
+        <section>
+            <h1 class="pre-wrap">match (👨‍🦰) {
+    👧 =&gt; 👫,
+    🧑 =&gt; 👬,
+};</h1>
+        </section>
+        <section>
+            <h2>$object::class</h2>
+            <pre><code class="php">$object::class === get_class($object); // true</code></pre>
+            <p><a href="https://wiki.php.net/rfc/class_name_literal_on_object">📝 RFC by Nikita Popov</a></p>
+        </section>
+        <section>
+            <h2>throw как выражение</h2>
+            <pre><code class="php">static fn() => throw new Exception('have a nice day!');</code></pre>
+            <pre><code class="php">$foo = isset($bar['baz'])
+    ? $bar['baz']
+    : throw new Exception('$bar[baz] is not set');
+
+$foo = $bar ?: throw new Exception('$bar is falsy');
+
+$foo = $bar ?? throw new Exception('$bar is not set');
+
+$foo ??= throw new Exception('$foo is not set');</code></pre>
+            <p><a href="https://wiki.php.net/rfc/throw_expression">📝 RFC by Ilija Tovilo</a></p>
+        </section>
+        <section>
+            <h2>Выражение match</h2>
+            <p>PHP < 8</p>
+            <pre><code class="php">switch ($request->getMethod())
+{
+    case 'POST':
+        $status = $this->handlePost($request);
+        break;
+
+    case 'GET':
+    case 'HEAD':
+        $status = $this->handleGet($request);
+        break;
+
+    default:
+        throw new Exception('Unsupported method');
+}</code></pre>
+        </section>
+        <section>
+            <h2>Выражение match</h2>
+            <p>PHP >= 8</p>
+            <pre><code class="php">$status = match($request->getMethod()) {
+    'POST'        => $this->handlePost($request),
+    'GET', 'HEAD' => $this->handleGet($request),
+    default       => throw new Exception('Unsupported method'),
+};</code></pre>
+            <p><a href="https://wiki.php.net/rfc/match_expression_v2">📝 RFC by Ilija Tovilo</a></p>
+        </section>
+        <section>
+            <h2>Висячая запятая в параметрах и use</h2>
+            <pre><code class="php">final class AnswerQuestion
+{
+    public function __construct(
+        string $respondentId,
+        string $questionId,
+        string $answerId,
+    ) {}
+}
+</code></pre>
+            <pre><code class="php">static function () use(
+    $respondentId,
+    $questionId,
+    $answerId,
+): void {}</code></pre>
+            <p>
+                <a href="https://wiki.php.net/rfc/trailing_comma_in_parameter_list">📝 Parameters RFC by Nikita Popov</a><br>
+                <a href="https://wiki.php.net/rfc/trailing_comma_in_closure_use_list">📝 Use RFC by Tyson Andre</a>
+            </p>
+        </section>
+        <section>
+            <h2>Свойства в конструкторе</h2>
+            <p>PHP < 8</p>
+            <pre><code class="php">final class Point
+{
+    public float $x;
+    public float $y;
+
+    public function __construct(float $x = 0.0, float $y = 0.0)
+    {
+        assert($x >= 0.0);
+        assert($y >= 0.0);
+
+        $this->x = $x;
+        $this->y = $y;
+    }
+}</code></pre>
+        </section>
+        <section>
+            <h2>Свойства в конструкторе</h2>
+            <p>PHP >= 8</p>
+            <pre><code class="php">final class Point
+{
+    public function __construct(
+        public float $x = 0.0,
+        public float $y = 0.0,
+    ) {
+        assert($x >= 0.0);
+        assert($y >= 0.0);
+    }
+}</code></pre>
+            <p><a href="https://wiki.php.net/rfc/constructor_promotion">📝 RFC by Nikita Popov</a></p>
+        </section>
+        <section>
+            <h2>#[Атрибуты]</h2>
+            <pre><code class="php">#[
+  ORM\Entity,
+  ORM\Table("recipient")
+]
+final class Recipient
+{
+    /** @psalm-readonly */
+    #[ORM\Id, ORM\Column("uuid")]
+    private string $id;
+
+    #[ORM\Column("string", ORM\Column::UNIQUE)]
+    private string $email;
+}</code></pre>
+            <p><a href="https://wiki.php.net/rfc/attributes_v2">📝 Implementation RFC by Benjamin Eberlei</a><br>
+                <a href="https://wiki.php.net/rfc/shorter_attribute_syntax_change">📝 Syntax RFC by Derick Rethans, Benjamin Eberlei</a></p>
+        </section>
+        <section>
+            <h2>#[Атрибуты]</h2>
+            <pre><code class="php">final class ApproveApplications
+{
+    /**
+     * @Assert\All({
+     *     @Assert\NotBlank(),
+     *     @Assert\Uuid(),
+     * })
+     */
+    public array $applicationsIds = [];
+}
+</code></pre>
+            <p><a href="https://github.com/symfony/symfony/issues/38503">💬 Symfony issue #38503</a></p>
+        </section>
+        <section>
+            <h2>Именованные аргументы</h2>
+            <pre><code class="diff">- htmlspecialchars($string, default, default, false);
+
++ htmlspecialchars($string, double_encode: false);</code></pre>
+            <pre><code class="php">array_fill(...[
+    'start_index' => 0,
+    'count' => 100,
+    'value' => 50,
+]);</code></pre>
+            <pre><code class="php">#[@ORM\OneToMany(
+    targetEntity: Criterion::class,
+    indexBy: "criterionId",
+)]</code></pre>
+            <p><a href="https://wiki.php.net/rfc/named_params">📝 RFC by Nikita Popov</a></p>
+        </section>
+        <section>
+            <h2>Nullsafe оператор ?-&gt;</h2>
+            <pre><code class="php">function identity(): ?Identity
+{
+    $token = tokenStorage()->token();
+
+    if ($token === null) {
+        return null;
+    }
+
+    return $token->identity();
+}</code></pre>
+            <pre><code class="php">function identity(): ?Identity
+{
+    return tokenStorage()->token()?->user();
+}</code></pre>
+            <p><a href="https://wiki.php.net/rfc/nullsafe_operator">📝 RFC by Ilija Tovilo</a></p>
+        </section>
+
+        <section>
+            <h1 class="pre-wrap">try {
+    yield 😍️();
+} catch (🔞) {
+    return;
+}</h1>
+        </section>
+        <section>
+            <h2>ValueError</h2>
+            <pre><code class="php">class ValueError extends \Error
+{
+}</code></pre>
+            <p>PHP < 8.0</p>
+            <pre><code class="php">strpos('s', 'small', 16);
+
+// Warning: strpos(): Offset not contained in string in ... on line ...
+</code></pre>
+            <p>PHP >= 8.0</p>
+            <pre><code class="php">strpos('s', 'small', 16);
+
+// Uncaught ValueError: Offset not contained in string in ...:...
+</code></pre>
+            <p><a href="https://wiki.php.net/rfc/consistent_type_errors">📝 RFC by Nikita Popov</a></p>
+            <p><a href="https://github.com/symfony/polyfill-php80">💊 Symfony Polyfill</a></p>
+        </section>
+        <section>
+            <h2>catch без переменной</h2>
+            <pre><code class="diff">try {
+    return $container->get('logger');
+}
+- catch (NotFoundExceptionInterface $exception) {
++ catch (NotFoundExceptionInterface) {
+    return new NullLogger();
+}</code></pre>
+            <p><a href="https://wiki.php.net/rfc/non-capturing_catches">📝 RFC by Max Semenik</a></p>
+        </section>
+        <section>
+            <h2>🚫 🛑 ❌ ⛔️</h2>
+            <ul>
+                <li class="mb-1">Fatal error во всех случаях нарушения LSP.</li>
+                <li class="mb-1">Fatal error при статическом вызове динамического метода.</li>
+                <li class="mb-1">Оператор подавления <code>@</code> больше не влияет на вывод фатальных ошибок.</li>
+                <li class="mb-1">PDO по умолчанию бросает исключения<br><code>PDO::ATTR_ERRMODE = PDO::ERRMODE_EXCEPTION</code>.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h1 class="mb-0">🤓 $ vim php.ini</h1>
+            <p class="dim">ESQ + :q!</p>
+        </section>
+        <section>
+            <h2>error_reporting=E_ALL</h2>
+            <pre><code class="diff">- error_reporting=E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED
+
++ error_reporting=E_ALL</code></pre>
+            <p><a href="https://github.com/php/php-src/pull/4659">📝 PR by Nikita Popov</a></p>
+        </section>
+        <section>
+            <h2>ext-json</h2>
+            <pre><code class="diff">{
+    "require": {
+        "php": "^8.0",
+-       "ext-json": "*"
+    }
+}</code></pre>
+            <p><a href="https://wiki.php.net/rfc/always_enable_json">📝 RFC by Tyson Andre</a></p>
+        </section>
+
+        <section>
+            <h2>assert.exception = 1 по умолчанию</h2>
+            <pre><code class="php">assert(true === false);
+
+// Fatal error: Uncaught AssertionError ...</code></pre>
+            <p><a href="https://github.com/php/php-src/pull/5925">📝 PR by Levi Morrison</a></p>
+        </section>
+
+        <section>
+            <h2>🍰 JIT</h2>
+            <pre><code class="diff">+ opcache.jit_buffer_size=32M</code></pre>
+            <img src="dist/jit.svg" style="max-width: 70%" alt="">
+            <p><a href="https://wiki.php.net/rfc/jit">📝 RFC by Dmitry Stogov</a></p>
+        </section>
+
+        <section>
+            <h2>Динамический порт встроенного сервера</h2>
+            <pre><code class="bash">php -S localhost:0
+
+[Wed Nov 25 20:35:59 2020] PHP 8.0.0 Development Server
+(http://localhost:11584) started</code></pre>
+            <pre><code class="php">var_dump($_SERVER['SERVER_PORT']);</code></pre>
+            <p><a href="https://github.com/php/php-src/commit/a61a9fe9a0d63734136f995451a1fd35b0176292">📝 Commit by Sara Golemon</a></p>
+        </section>
+
+        <section>
+            <h2>Источники</h2>
+            <ul style="font-size: 1.5em">
+                <li><a href="https://wiki.php.net/">wiki.php.net</a></li>
+                <li><a href="https://t.me/phpdigest">PHP Digest</a></li>
+                <li><a href="https://php.watch/versions/8.0">PHP.Watch</a></li>
+                <li><a href="https://stitcher.io/blog/new-in-php-8">stitcher.io</a></li>
+            </ul>
+        </section>
+
+        <section>
+            <p style="font-size: 2em;" class="text-center">
+                <img src="dist/phpyh.jpg" alt="" style="width: 100px; vertical-align: middle;"> Пых <a href="https://t.me/phpyh">@phpyh</a>
+            </p>
+            <p style="font-size: 2em;" class="text-center">
+                <img src="dist/php_digest.jpg" alt="" style="width: 100px; vertical-align: middle;"> PHP Digest <a href="https://t.me/phpdigest">@phpdigest</a>
+            </p>
+            <p style="font-size: 2em;" class="text-center">
+                <img src="dist/php_point.png" alt="" style="width: 100px; vertical-align: middle;"> <a href="https://www.youtube.com/c/PHPPoint">PHP Point</a>
+            </p>
+        </section>
+    </div>
+</div>
+
+<script src="dist/reveal.js"></script>
+<script src="plugin/notes/notes.js"></script>
+<script src="plugin/markdown/markdown.js"></script>
+<script src="plugin/highlight/highlight.js"></script>
+<script>
+    Reveal.initialize({
+        hash: true,
+        plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
+        slideNumber: true,
+        progress: true,
+    });
+</script>
+</body>
+</html>
